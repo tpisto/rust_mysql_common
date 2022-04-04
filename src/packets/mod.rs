@@ -530,6 +530,24 @@ pub struct OkPacket<'a> {
 }
 
 impl<'a> OkPacket<'a> {
+    pub fn new(
+        affected_rows: u64,
+        last_insert_id: Option<u64>,
+        status_flags: StatusFlags,
+        warnings: u16,
+        info: Option<RawBytes<'a, LenEnc>>,
+        session_state_info: Option<RawBytes<'a, LenEnc>>,
+    ) -> Self {
+        OkPacket {
+            affected_rows,
+            last_insert_id,
+            status_flags,
+            warnings,
+            info,
+            session_state_info,
+        }
+    }
+
     pub fn into_owned(self) -> OkPacket<'static> {
         OkPacket {
             affected_rows: self.affected_rows,
