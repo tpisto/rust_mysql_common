@@ -492,6 +492,53 @@ pub enum Command {
     COM_END,
 }
 
+impl TryFrom<u8> for Command {
+    type Error = UnknownCommand;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Command::COM_SLEEP),
+            1 => Ok(Command::COM_QUIT),
+            2 => Ok(Command::COM_INIT_DB),
+            3 => Ok(Command::COM_QUERY),
+            4 => Ok(Command::COM_FIELD_LIST),
+            5 => Ok(Command::COM_CREATE_DB),
+            6 => Ok(Command::COM_DROP_DB),
+            7 => Ok(Command::COM_REFRESH),
+            8 => Ok(Command::COM_DEPRECATED_1),
+            9 => Ok(Command::COM_STATISTICS),
+            10 => Ok(Command::COM_PROCESS_INFO),
+            11 => Ok(Command::COM_CONNECT),
+            12 => Ok(Command::COM_PROCESS_KILL),
+            13 => Ok(Command::COM_DEBUG),
+            14 => Ok(Command::COM_PING),
+            15 => Ok(Command::COM_TIME),
+            16 => Ok(Command::COM_DELAYED_INSERT),
+            17 => Ok(Command::COM_CHANGE_USER),
+            18 => Ok(Command::COM_BINLOG_DUMP),
+            19 => Ok(Command::COM_TABLE_DUMP),
+            20 => Ok(Command::COM_CONNECT_OUT),
+            21 => Ok(Command::COM_REGISTER_SLAVE),
+            22 => Ok(Command::COM_STMT_PREPARE),
+            23 => Ok(Command::COM_STMT_EXECUTE),
+            24 => Ok(Command::COM_STMT_SEND_LONG_DATA),
+            25 => Ok(Command::COM_STMT_CLOSE),
+            26 => Ok(Command::COM_STMT_RESET),
+            27 => Ok(Command::COM_SET_OPTION),
+            28 => Ok(Command::COM_STMT_FETCH),
+            29 => Ok(Command::COM_DAEMON),
+            30 => Ok(Command::COM_BINLOG_DUMP_GTID),
+            31 => Ok(Command::COM_RESET_CONNECTION),
+            32 => Ok(Command::COM_END),
+            x => Err(UnknownCommand(x)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+#[error("Unknown command {}", _0)]
+pub struct UnknownCommand(pub u8);
+
 /// Type of state change information (part of MySql's Ok packet).
 #[allow(non_camel_case_types)]
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
