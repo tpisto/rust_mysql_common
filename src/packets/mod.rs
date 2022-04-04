@@ -387,6 +387,36 @@ pub struct OkPacketBody<'a> {
     info: RawBytes<'a, LenEnc>,
     session_state_info: RawBytes<'a, LenEnc>,
 }
+impl<'a> OkPacketBody<'a> {
+    pub fn new(
+        affected_rows: u64,
+        last_insert_id: u64,
+        status_flags: StatusFlags,
+        warnings: u16,
+        info: &'a [u8],
+        session_state_info: &'a [u8],
+    ) -> Self {
+        OkPacketBody {
+            affected_rows: RawInt::new(affected_rows),
+            last_insert_id: RawInt::new(last_insert_id),
+            status_flags: Const::new(status_flags),
+            warnings: RawInt::new(warnings),
+            info: RawBytes::new(info),
+            session_state_info: RawBytes::new(session_state_info),
+        }
+    }
+}
+
+impl MySerialize for OkPacketBody<'_> {
+    fn serialize(&self, buf: &mut Vec<u8>) {
+        self.affected_rows.serialize(&mut *buf);
+        self.last_insert_id.serialize(&mut *buf);
+        self.status_flags.serialize(&mut *buf);
+        self.warnings.serialize(&mut *buf);
+        self.info.serialize(&mut *buf);
+        self.session_state_info.serialize(&mut *buf);
+    }
+}
 
 /// OK packet kind (see _OK packet identifier_ section of [WL#7766][1]).
 ///
@@ -530,24 +560,6 @@ pub struct OkPacket<'a> {
 }
 
 impl<'a> OkPacket<'a> {
-    pub fn new(
-        affected_rows: u64,
-        last_insert_id: Option<u64>,
-        status_flags: StatusFlags,
-        warnings: u16,
-        info: Option<RawBytes<'a, LenEnc>>,
-        session_state_info: Option<RawBytes<'a, LenEnc>>,
-    ) -> Self {
-        OkPacket {
-            affected_rows,
-            last_insert_id,
-            status_flags,
-            warnings,
-            info,
-            session_state_info,
-        }
-    }
-
     pub fn into_owned(self) -> OkPacket<'static> {
         OkPacket {
             affected_rows: self.affected_rows,
